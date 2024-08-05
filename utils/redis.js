@@ -22,7 +22,11 @@ class RedisClient {
 
     async set(key, value, duration) {
         return new Promise((resolve, reject) => {
-            this.client.set(key, value, (err) => {
+            this.client.set(key, value, 'EX', duration, (err) => {
+                if (err) {
+                    console.error('Error setting key in Redis:', err);
+                    return reject(err);
+                }
                 resolve();
             });
         });
