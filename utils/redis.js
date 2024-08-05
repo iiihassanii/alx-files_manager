@@ -1,17 +1,13 @@
 // utils/redis.js
-import redis from 'redis';
+import { createClient } from 'redis';
 
 class RedisClient {
     constructor() {
-        this.client = redis.createClient();
+        this.client = createClient();
         this.client.on('error', (err) => {
-            console.error('Redis client not connected to the server:', err);
-        });
-        this.client.on('connect', () => {
-            console.log('Redis client connected to the server');
+            console.error('client not connected to the server:', err);
         });
     }
-
     isAlive() {
         return this.client.connected;
     }
@@ -19,10 +15,6 @@ class RedisClient {
     async get(key) {
         return new Promise((resolve, reject) => {
             this.client.get(key, (err, value) => {
-                if (err) {
-                    console.error('Error getting key from Redis:', err);
-                    return reject(err);
-                }
                 resolve(value);
             });
         });
@@ -30,11 +22,7 @@ class RedisClient {
 
     async set(key, value, duration) {
         return new Promise((resolve, reject) => {
-            this.client.set(key, value, 'EX', duration, (err) => {
-                if (err) {
-                    console.error('Error setting key in Redis:', err);
-                    return reject(err);
-                }
+            this.client.set(key, value, (err) => {
                 resolve();
             });
         });
