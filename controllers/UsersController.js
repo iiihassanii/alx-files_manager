@@ -1,32 +1,31 @@
-// controllers/UsersController.js
-import { ObjectId } from 'mongodb';
-import crypto from 'crypto';
-import dbClient from '../utils/db.js';
+#!/usr/bin/node
+
+const dbClient = require('../utils/db');
 
 class UsersController {
   static async postNew(req, res) {
     const { email, password } = req.body;
-
     if (!email) {
-      return res.status(400).json({ error: 'Missing email' });
+      res.status(400).json({ error: 'Missing email' });
+      res.end();
+      return;
     }
     if (!password) {
-      return res.status(400).json({ error: 'Missing password' });
+      res.status(400).json({ error: 'Missing password' });
+      res.end();
+      return;
     }
-
-    const userCollection = dbClient.db.collection('users');
-    const existingUser = await userCollection.findOne({ email });
-
-    if (existingUser) {
-      return res.status(400).json({ error: 'Already exist' });
+    const userExist = await dbClient.userExist(email);
+    if (userExist) {
+      res.status(400).json({ error: 'Already exist' });
+      res.end();
+      return;
     }
-
-    const hashedPassword = crypto.createHash('sha1').update(password).digest('hex');
-    const result = await userCollection.insertOne({ email, password: hashedPassword });
-
-    const newUser = { id: result.insertedId, email };
-    return res.status(201).json(newUser);
+    const user = await dbClient.createUser(email, password);
+    const id = `${user.insertedId}`;
+    res.status(201).json({ id, email });
+    res.end();
   }
 }
 
-export default UsersController;
+module.exports = UsersController;
