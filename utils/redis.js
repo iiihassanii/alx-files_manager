@@ -38,7 +38,7 @@ class RedisClient {
           console.error('Error getting value from Redis:', err);
           return reject(err);
         }
-        resolve(value);
+        return resolve(value);
       });
     });
   }
@@ -57,7 +57,7 @@ class RedisClient {
           console.error('Error setting value in Redis:', err);
           return reject(err);
         }
-        resolve();
+        return resolve();
       });
     });
   }
@@ -74,7 +74,7 @@ class RedisClient {
           console.error('Error deleting key from Redis:', err);
           return reject(err);
         }
-        resolve();
+        return resolve();
       });
     });
   }
