@@ -1,3 +1,5 @@
+#!/usr/bin/node
+
 // utils/db.js
 import { MongoClient } from 'mongodb';
 import dotenv from 'dotenv';
