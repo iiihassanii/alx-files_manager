@@ -2,7 +2,6 @@
 
 // utils/redis.js
 import { createClient } from 'redis';
-import { promisify } from 'util';
 
 /**
  * Class representing a Redis client.
@@ -33,9 +32,15 @@ class RedisClient {
     * or null if the key does not exist.
 */
   async get(key) {
-    const getAsync = promisify(this.client.get).bind(this.client);
-    const val = await getAsync(key);
-    return val;
+    return new Promise((resolve, reject) => {
+      this.client.get(key, (err, value) => {
+        if (err) {
+          console.error('Error getting value from Redis:', err);
+          return reject(err);
+        }
+        resolve(value);
+      });
+    });
   }
 
   /**
@@ -46,8 +51,15 @@ class RedisClient {
     * @returns {Promise<void>} - A promise that resolves when the key-value pair is set.
     */
   async set(key, value, duration) {
-    const setAsync = promisify(this.client.get).bind(this.client);
-    await setAsync(key, value, 'EX', duration);
+    return new Promise((resolve, reject) => {
+      this.client.set(key, value, 'EX', duration, (err) => {
+        if (err) {
+          console.error('Error setting value in Redis:', err);
+          return reject(err);
+        }
+        resolve();
+      });
+    });
   }
 
   /**
@@ -56,8 +68,15 @@ class RedisClient {
    * @returns {Promise<void>} - A promise that resolves when the key is deleted.
     */
   async del(key) {
-    const delAsync = promisify(this.client.del).bind(this.client);
-    await delAsync(key);
+    return new Promise((resolve, reject) => {
+      this.client.del(key, (err) => {
+        if (err) {
+          console.error('Error deleting key from Redis:', err);
+          return reject(err);
+        }
+        resolve();
+      });
+    });
   }
 }
 
